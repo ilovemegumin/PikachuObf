@@ -1,49 +1,24 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'devs.pikachu.protect'
-version = '2.0-Rewrite'
+version = '3.0-FullRecode'
 
 repositories {
     mavenCentral()
-    maven { url 'https://jitpack.io' }
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class' : 'devs.pikachu.protect.Main'
-    }
-}
+def asmVersion = '9.10.1'
 
 dependencies {
-    // Apache
-    implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.8.2'
-    implementation 'commons-cli:commons-cli:1.7.0'
-    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
-    implementation 'org.apache.commons:commons-collections4:4.1'
+    implementation "org.ow2.asm:asm:${asmVersion}"
+    implementation "org.ow2.asm:asm-tree:${asmVersion}"
+    implementation "org.ow2.asm:asm-commons:${asmVersion}"
+    implementation "org.ow2.asm:asm-analysis:${asmVersion}"
 
-    // Object Web
-    implementation 'org.ow2.asm:asm-commons:9.3'
-    implementation 'org.ow2.asm:asm:9.4'
-    implementation 'org.ow2.asm:asm-tree:9.4'
-    implementation 'org.ow2.asm:asm-analysis:9.4'
-
-    // Lombok
-    compileOnly 'org.projectlombok:lombok:1.18.28'
-    annotationProcessor 'org.projectlombok:lombok:1.18.28'
-
-    // Simple Yaml
-    implementation 'me.carleslc.Simple-YAML:Simple-Yaml:1.8.4'
-
-    // Test dependencies
-    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation platform('org.junit:junit-bom:5.12.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-}
-
-test {
-    useJUnitPlatform()
 }
 
 java {
@@ -51,9 +26,33 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-shadowJar {
-    mergeServiceFiles()
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+    options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    archiveClassifier = 'plain'
     manifest {
         attributes 'Main-Class': 'devs.pikachu.protect.Main'
     }
 }
+
+tasks.register('fatJar', Jar) {
+    archiveClassifier = ''
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': 'devs.pikachu.protect.Main'
+    }
+    from sourceSets.main.output
+    dependsOn configurations.runtimeClasspath
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+build.dependsOn fatJar

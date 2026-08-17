@@ -1,21 +1,83 @@
-# Pikachu - 2P2FJP開発グループによって作成された、特別なJavaプログラム難読化ツール (DIED)
+# PikachuObf 3.0 Full Recode
 
-### 🐈: **現在の機能**
-- String Obfuscation: 文字列を難読化し、解析を困難にします。
-- Number Obfuscation: 数値を難読化し、リバースエンジニアリングを防ぎます。
-- Reverse Transformer: Number, Integerの構造を逆転させ、解析を複雑にします。
-- Field Remapper: クラスフィールドの名前を変更し、コードの理解を困難にします。
-- Class To Folder: WinRar, zipなどで開かれる場合にclassをフォルダに変換して閲覧を不可能にします。
+## 対応
 
-### Pikachu貢献者
-- [Rom](https://github.com/Romdotpng) -  OvaqReborn Projectの開発者、Pikachu Obfuscation Tool Projectのメイン開発者
-- [h_ypi](https://github.com/dada994a) - OvaqReborn Projectのメイン開発者、Pikachu Obfuscation Tool Projectの開発者
-- [NaaNaa](https://github.com/naanaa146) - OvaqReborn Projectの開発者
+- ツール本体: Java 17以上
+- class file: Java 17からJava 26を含むASM 9.10.1対応範囲
+- Gradle Wrapper: 9.7.0
+- ASM: 9.10.1
 
-### やることリスト
-- Guiを追加
+`-asmVer` は旧CLIとの互換用に受け付けますが、ASM APIの切り替えには使いません。
+## Build
 
-### Build方法
-- JDKをセットアップ(17)
-- Gradle > shadow > shadowJarを選択
-- 完了
+Windows:
+
+```bat
+gradlew.bat clean test fatJar
+```
+
+Linux/macOS:
+
+```bash
+./gradlew clean test fatJar
+```
+
+生成物は`build/libs/PikachuObf-3.0-FullRecode.jar`です。
+
+## Usage
+
+```text
+java -jar PikachuObf-3.0-FullRecode.jar input.jar output.jar [options]
+```
+
+例:
+
+```text
+java -jar PikachuObf-3.0-FullRecode.jar input.jar output.jar -full -reverse
+```
+
+特定クラスだけ:
+
+```text
+java -jar PikachuObf-3.0-FullRecode.jar input.jar output.jar -inClass "com/example/(.*)" -exClass "com/example/api/(.*)" -useStringObf -useNumberObf
+```
+
+外部依存をframe計算へ渡す場合:
+
+```text
+java -jar PikachuObf-3.0-FullRecode.jar input.jar output.jar -full -lib libs/dependency.jar
+```
+
+## Options
+
+- `-full`
+- `-useStringObf`
+- `-useStringObfT`
+- `-useNumberObf`
+- `-bigBrainNumberObf`
+- `-reverse`
+- `-useInvokeDynamicObf`
+- `-useInvokeDynamicObfT`
+- `-dontEncode`
+- `-useJunkCode`
+- `-useMoreJunkCode`
+- `-useMoreJunkCode2`
+- `-useSuperJunkCode`
+- `-obfLocalVar`
+- `-delLocalVar`
+- `-applymap <file>`
+- `-classRandomName`
+- `-packageRemover`
+- `-noClassRename`
+- `-noPackageRemover`
+- `-addSyntheticFlag`
+- `-classToFolder`
+- `-fixVersion`
+- `-dontVerify`
+- `-inClass <regex...>`
+- `-exClass <regex...>`
+- `-lib <jar>`
+- `-seed <long>`
+- `-asmVer <4-10>`
+
+`-full`ではString、2層String、Number、InvokeDynamic、2層InvokeDynamic、Junk、LocalVariable削除、Synthetic、ClassRandomName、PackageRemoverを有効にします。

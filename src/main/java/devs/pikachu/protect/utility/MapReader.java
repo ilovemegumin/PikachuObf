@@ -1,23 +1,26 @@
 package devs.pikachu.protect.utility;
 
-import java.util.HashSet;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.List;
 
-public class MapReader {
-    public static String[] read(String s) {
-        char[] chars = s.toCharArray();
-        HashSet<String> names = new HashSet<>();
-        StringBuffer buffer = new StringBuffer();
-        for (char c : chars) {
-            boolean flag;
-            boolean bl = flag = buffer.length() == 0 ? Character.isJavaIdentifierStart(c) : Character.isJavaIdentifierPart(c);
-            if (flag && c != '\n' && c != '\r') {
-                buffer.append(c);
+public final class MapReader {
+    private MapReader() {
+    }
+
+    public static String[] read(Path path) throws IOException {
+        List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+        LinkedHashSet<String> names = new LinkedHashSet<>();
+        for (String line : lines) {
+            String value = line.strip();
+            if (value.isEmpty() || value.startsWith("#")) {
                 continue;
             }
-            if (buffer.length() <= 0) continue;
-            names.add(buffer.toString());
-            buffer.setLength(0);
+            names.add(value);
         }
-        return names.toArray(new String[0]);
+        return names.toArray(String[]::new);
     }
 }
